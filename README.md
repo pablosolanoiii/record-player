@@ -21,15 +21,14 @@ The goal is to design and prototype a turntable that demonstrates controlled rot
 - Closed-loop control using sensor feedback
 - Modular subsystem development for mechanical, electrical, and software components
 
-
 ## Bonus Goals
-- Support 33⅓ RPM
-- Support 45 RPM
-- Support 78 RPM
+- Support $33 \frac {1}{3}$ RPM
+- Support $45$ RPM
+- Support $78$ RPM
 - Optional reverse mode
 
 ## Current Status
-Early planning and subsystem definition.
+Testing code and finding microcontroller 
 
 ## Notes
 This repository will document the design process, subsystem planning, circuit development, CAD work, testing, and project revisions.
