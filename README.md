@@ -3,22 +3,19 @@
 ## Overview
 This project is currently in progress.
 
-The goal is to design and prototype a turntable that demonstrates controlled rotation, motor circuitry, sensing, amplification, and subsystem-level engineering design. The project will likely use 3D-printed components for the mechanical structure and breadboarded electronics for initial prototyping.
+The goal of this project is to make a record player that uses magnetic sensing to maintain speed. 
 
-## Planned Subsystems
-- 3D-printed housing and structural components
-- Platter and motor mounting system
-- Motor and speed control
-- User controls
-- Circuitry and power distribution
-- Amplifier subsystem
-- Speed sensing / feedback
-- Documentation and testing
+## Roles 
+- 3D Printing 
+- Coding
+- Circuitry
+- Tone Arm
+- Calculations
 
-## Possible Features
+## Features
 - Belt Drive 
 - Selectable platter speeds
-- Closed-loop control using sensor feedback
+- PID Contolled Platter Speed 
 - Modular subsystem development for mechanical, electrical, and software components
 
 ## Bonus Goals
@@ -28,7 +25,7 @@ The goal is to design and prototype a turntable that demonstrates controlled rot
 - Optional reverse mode
 
 ## Current Status
-Testing code and finding microcontroller 
+Sourcing Parts 
 
 ## Notes
 This repository will document the design process, subsystem planning, circuit development, CAD work, testing, and project revisions.
