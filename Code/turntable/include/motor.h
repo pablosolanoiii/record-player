@@ -26,4 +26,9 @@ Valid range:
 The PWM signal controls the average voltage delivered to the motor. 
 Higher values increases motor speed.  
 */
+
+void motor_stop();
+/*
+Slows down the motor gradually to a stop.
+*/
 #endif 

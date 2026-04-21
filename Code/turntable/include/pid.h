@@ -25,7 +25,7 @@ kd      -derivative gain
 This function sets the controller gains and resets the internal state
 */
 
-void pid_update(PIDController *pid, float target, float measured, float dt);
+float pid_update(PIDController *pid, float target, float measured, float dt);
 /*
 Updates the PID controller and computes a correction value.
 

@@ -28,7 +28,7 @@ Debounced logic will be applied
 The main controller will use this to toggle motor on/off
 */
 
-float rpm();
+float read_rpm();
 /*
 Calculates the current platter speed in RPM.
 
