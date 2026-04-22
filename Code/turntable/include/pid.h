@@ -1,6 +1,8 @@
 #ifndef PID_H
 #define PID_H
 
+#include <Arduino.h>
+
 typedef struct
 {
     float kp; // Proportional gain: How we react to the current error
@@ -11,40 +13,37 @@ typedef struct
     float previous_error; // Stores the error from the previous control cycle
 } PIDController;
 
-void pid_init(PIDController *pid, float kp, float ki, float kd);
-/*
-Initializes the PID controller.
 
-Parameters:
+void pid_init(PIDController *pid, float kp, float ki, float kd)
+{
+    pid->kp = kp;
+    pid->ki = ki;
+    pid->kd = kd;
+    pid->integral = 0.0f;
+    pid->previous_error = 0.0;
+}
 
-pid     -pointer to the PID controller struct
-kp      -proportional gain 
-ki      -integral gain
-kd      -derivative gain
+float pid_update(PIDController *pid, float target, float measured, float dt)
+{
+    float error = target - measured;
 
-This function sets the controller gains and resets the internal state
-*/
+    pid->integral += error * dt;
 
-float pid_update(PIDController *pid, float target, float measured, float dt);
-/*
-Updates the PID controller and computes a correction value.
+    float derivative = 0.0f;
 
-Parameters:
-pid         -pointer to the PID controller struct
-target      -desired values (target RPM)
-measured    -current measuered value (sensor RPM)
-dt          -time step since last update (seconds)
+    if(dt > 0.0f) derivative = (error - pid->previous_error) / dt;
 
-This function computes the PID control equation and returns 
-a correction value that should be used to adjust motor power.  
-*/
+    float output = (pid->kp * error) + (pid->ki * pid->integral) + (pid->kd * derivative);
 
-void pid_reset(PIDController *pid);
-/*
-Resets the internal memory of the PID controller.
+    pid->previous_error = error;
 
-This clears the accumulated integral error and previous errors.
-So it leaves a clean state for MCU after restarting.
-*/
+    return output;
+}
+
+void pid_reset(PIDController *pid)
+{
+    pid->integral = 0.0f;
+    pid->previous_error = 0.0f;
+}
 
 #endif

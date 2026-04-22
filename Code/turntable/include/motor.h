@@ -1,34 +1,39 @@
 #ifndef MOTOR_H
 #define MOTOR_H
 
-void motor_init(int pin);
-/*
-Initializes the motor control hardware 
+#include <Arduino.h>
 
-Parameters:
-pin -PWM output pin connedt to the motor driver 
 
-This function configures the specified pin as an output 
-and prepares it for PWM control using Arduinos' analogWrite()
-*/
+static const int MOTOR_PIN = 10;
+static int current_pwm = 0;
+static const float MOTOR_SPEED = 33.33; // RPM for 33 1/3 record 
 
-void motor_pwm(int pwm);
-/*
-Sets the motor power using PWM
+void motor_init()
+{
+    pinMode(MOTOR_PIN, OUTPUT);
+    analogWrite(MOTOR_PIN, 0);
+    current_pwm = 0;
+}
 
-Parameters:
-pwm - PWM duty cycle value 
+void motor_pwm(int pwm)
+{
+    if (pwm < 0) pwm = 0;
+    if (pwm > 255) pwm = 255;
 
-Valid range:
-0 -> motor off
-255 -> max motor power
+    current_pwm = pwm;
+    analogWrite(MOTOR_PIN, pwm);
+}
 
-The PWM signal controls the average voltage delivered to the motor. 
-Higher values increases motor speed.  
-*/
+void motor_stop()
+{
+    while (current_pwm > 0) 
+    {
+        current_pwm -= 5;
+        if (current_pwm < 0) current_pwm = 0;
 
-void motor_stop();
-/*
-Slows down the motor gradually to a stop.
-*/
-#endif 
+        analogWrite(MOTOR_PIN, current_pwm);
+        delay(50); 
+    }
+}
+
+#endif

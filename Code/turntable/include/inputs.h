@@ -1,46 +1,70 @@
-#ifndef INPUTS_H 
+
+#ifndef INPUTS_H
 #define INPUTS_H
 
-void inputs_init();
-/*
-Initializes all input hardware used by the system.
+#include <Arduino.h>
 
-This function configures the physical input pins for the 
-button and Hall sensor 
+#define BUTTON_PIN 2 
+#define HALL_PIN 3
+#define MAGNETS_PER_REVOLUTION 16
 
-Typical tasks performed here:
--set button pin mode 
--set Hall sensor pin more
+volatile unsigned long pulse_period = 0;
+volatile unsigned long last_pulse_time = 0;
 
-must be called during system startup in setup()
-*/
+//Private functions
+void hall_sensor_isr()
+{
+    unsigned long now = micros();
+    if (last_pulse_time != 0)
+        pulse_period = now - last_pulse_time;    
+    last_pulse_time = now;
+}
 
-bool button_pressed();
-/*
-Checks if the start/stop button has been pressed.
+//Public functions
+bool button_pressed()
+{
+    static unsigned long last_press_time = 0;
+    static int last_state = HIGH;
+    const unsigned long debounce_delay = 50;
 
-Returns:
-true    -button has been pressed 
-false   -button has not been pressed 
+    int state = digitalRead(BUTTON_PIN);
 
-Debounced logic will be applied 
+    if (state == LOW)
+    {
+        unsigned long now = millis();
+        if (now - last_press_time > debounce_delay) 
+        {
+            last_press_time = now;
+            last_state = state;
+            return true;
+        }
+    }
+    last_state = state;
+    return false;   
+}
 
-The main controller will use this to toggle motor on/off
-*/
+void inputs_init()
+{
+    pinMode(BUTTON_PIN, INPUT_PULLUP);
+    pinMode(HALL_PIN, INPUT_PULLUP);
 
-float read_rpm();
-/*
-Calculates the current platter speed in RPM.
+    attachInterrupt(digitalPinToInterrupt(HALL_PIN), hall_sensor_isr, RISING);
+}
 
-Returns:
-current platter rotational speed (RPM)
+float read_rpm()
+{
+    noInterrupts();
+    unsigned long period = pulse_period;
+    unsigned long last_time = last_pulse_time;
+    interrupts();
 
-This function reads timing information from the Hall sensor.
-Each magnet passing the sensor produces as pulse using.
+    if (period == 0) return 0.0; 
 
-RPM is calculated from the time between pulses using: 
+    if ((micros() - last_time) > (period * 2))
+        return 0.0;
 
-RPM = 60 / (pulse_period_seconds * 16)
-*/
+    float seconds = period / 1000000.0;
+    return 60.0 / (seconds * MAGNETS_PER_REVOLUTION);
+}
 
 #endif
