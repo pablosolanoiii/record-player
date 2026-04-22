@@ -1,53 +1,42 @@
-#include <Arduino.h>
-
+#include "timer.h"
 #include "inputs.h"
 #include "motor.h"
 #include "pid.h"
 
+// put function declarations here:
 PIDController pid;
+int current_speed = 0;
+unsigned long startTime = 0;
+unsigned long elapsedTime = 0;
 
-static bool motor_running = false;
-static const float target_rpm = 33.3;
 
-unsigned long last_update_time = 0;
+void setup() {
 
-void setup() 
-{
-    inputs_init();
-    motor_init(10);
+  inputs_init();
+  motor_init();
+  pid_init(&pid, 1.0, 0.1, 0.05); // Example PID parameters
 
-    pid_update(&pid, 2.0, 0.5, 1.0); //We have to tune this for our system
-
-    last_update_time = millis();
 }
 
-void loop() 
-{
-    if (button_pressed())
+void loop() {
+
+  if (button_pressed())
+  {
+    delay(100); // Debounce delay
+    while (!button_pressed())
     {
-        motor_running = !motor_running;
-
-        if (!motor_running) 
-        {
-            motor_stop();
-            pid_reset(&pid);
-        }
-
-        delay(200);
+        current_speed = pid_update(&pid, MOTOR_SPEED, read_rpm(), stopTimer(&startTime, &elapsedTime)); // Example control loop with dt = 0.1s
+        startTimer(&startTime); // Start timer for next control loop iteration
+        motor_pwm(current_speed);
     }
+    
+    motor_stop();
+    pid_reset(&pid);
 
-    if(!motor_running) return;
-
-    unsigned long now = millis();
-    float dt = (now - last_update_time) / 1000.0;
-    last_update_time = now;
-
-    float current_rpm = read_rpm();
-
-    float correction = pid_update(&pid, target_rpm, current_rpm, dt);
-
-    int pwm = (int)correction;
-    motor_pwm(pwm);
-
-    delay(10);
+  }
+  else
+  {
+    motor_stop();
+    pid_reset(&pid);
+  }
 }
