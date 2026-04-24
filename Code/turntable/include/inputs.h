@@ -5,7 +5,7 @@
 #include <Arduino.h>
 
 #define BUTTON_PIN 2 
-#define HALL_PIN 3
+#define HALL_PIN 12
 #define MAGNETS_PER_REVOLUTION 16
 
 volatile unsigned long pulse_period = 0;
