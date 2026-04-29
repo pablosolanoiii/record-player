@@ -35,6 +35,8 @@ void setup()
 
 void loop()
 {
+
+  //Checks if the button is pressed, if it is, it waits until the button is released and then turns on the LED for 1 second
   /*if (digitalRead(BUTTON_PIN) == LOW)
   {
     while (digitalRead(BUTTON_PIN) == LOW)
@@ -47,11 +49,13 @@ void loop()
     digitalWrite(LED_BUTTON_PIN, LOW);
   }*/
 
+  //Reads the value from the hall sensor through analog pin
   int hall_value = analogRead(HALL_PIN);
 
+  //Testing the hall sensor value by printing it to the serial monitor
   Serial.println(hall_value);
 
-
+  //if the hall sensor value is above 450, turn on the LED, otherwise turn it off
   if (hall_value > 450)
   {
     digitalWrite(LED_HALL_PIN, HIGH);
