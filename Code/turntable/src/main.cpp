@@ -1,42 +1,65 @@
-#include "timer.h"
-#include "inputs.h"
-#include "motor.h"
-#include "pid.h"
+#include <Arduino.h>
 
-// put function declarations here:
-PIDController pid;
-int current_speed = 0;
-unsigned long startTime = 0;
-unsigned long elapsedTime = 0;
+//inputs 
+#define BUTTON_PIN A0
+#define HALL_PIN A1
+#define UP_BUTTON_PIN A2
+#define DOWN_BUTTON_PIN A3
+
+//outputs 
+#define LED_HALL_PIN 30 
+#define LED_BUTTON_PIN 31
+#define PWM_PIN 10
 
 
-void setup() {
+int PWM_value = 0;
+unsigned long last_press_ = 0;
 
-  inputs_init();
-  motor_init();
-  pid_init(&pid, 1.0, 0.1, 0.05); // Example PID parameters
 
+
+void setup()
+{
+  Serial.begin(9600);
+  
+  //inputs 
+  pinMode(BUTTON_PIN, INPUT);
+  pinMode(HALL_PIN, INPUT);
+  pinMode(UP_BUTTON_PIN, INPUT);
+  pinMode(DOWN_BUTTON_PIN, INPUT);  
+
+  //ouputs
+  pinMode(LED_HALL_PIN, OUTPUT);
+  pinMode(LED_BUTTON_PIN, OUTPUT);
+  pinMode(PWM_PIN, OUTPUT);
 }
 
-void loop() {
-
-  if (button_pressed())
+void loop()
+{
+  /*if (digitalRead(BUTTON_PIN) == LOW)
   {
-    delay(100); // Debounce delay
-    while (!button_pressed())
+    while (digitalRead(BUTTON_PIN) == LOW)
     {
-        current_speed = pid_update(&pid, MOTOR_SPEED, read_rpm(), stopTimer(&startTime, &elapsedTime)); // Example control loop with dt = 0.1s
-        startTimer(&startTime); // Start timer for next control loop iteration
-        motor_pwm(current_speed);
+      delay(100);
     }
-    
-    motor_stop();
-    pid_reset(&pid);
 
+    digitalWrite(LED_BUTTON_PIN, HIGH);
+    delay(1000);
+    digitalWrite(LED_BUTTON_PIN, LOW);
+  }*/
+
+  int hall_value = analogRead(HALL_PIN);
+
+  Serial.println(hall_value);
+
+
+  if (hall_value > 450)
+  {
+    digitalWrite(LED_HALL_PIN, HIGH);
   }
   else
   {
-    motor_stop();
-    pid_reset(&pid);
+    digitalWrite(LED_HALL_PIN, LOW);
   }
+
+
 }
