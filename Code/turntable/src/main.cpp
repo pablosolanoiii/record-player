@@ -1,69 +1,50 @@
 #include <Arduino.h>
 
-//inputs 
+// inputs 
 #define BUTTON_PIN A0
-#define HALL_PIN A1
-#define UP_BUTTON_PIN A2
-#define DOWN_BUTTON_PIN A3
+#define BUTTON_PIN_2 A1
 
-//outputs 
-#define LED_HALL_PIN 30 
-#define LED_BUTTON_PIN 31
+// outputs 
 #define PWM_PIN 10
 
-
-int PWM_value = 0;
-unsigned long last_press_ = 0;
-
-
+int PWM_value = 10;
+unsigned long lastPressTime = 0;
+const int debounceDelay = 200;
 
 void setup()
 {
   Serial.begin(9600);
   
-  //inputs 
-  pinMode(BUTTON_PIN, INPUT);
-  pinMode(HALL_PIN, INPUT);
-  pinMode(UP_BUTTON_PIN, INPUT);
-  pinMode(DOWN_BUTTON_PIN, INPUT);  
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_PIN_2, INPUT_PULLUP);
 
-  //ouputs
-  pinMode(LED_HALL_PIN, OUTPUT);
-  pinMode(LED_BUTTON_PIN, OUTPUT);
   pinMode(PWM_PIN, OUTPUT);
 }
 
 void loop()
 {
+  unsigned long currentTime = millis();
 
-  //Checks if the button is pressed, if it is, it waits until the button is released and then turns on the LED for 1 second
-  /*if (digitalRead(BUTTON_PIN) == LOW)
+  int state1 = digitalRead(BUTTON_PIN);
+  int state2 = digitalRead(BUTTON_PIN_2);
+
+  // Decrease PWM
+  if (state1 == LOW && (currentTime - lastPressTime > debounceDelay))
   {
-    while (digitalRead(BUTTON_PIN) == LOW)
-    {
-      delay(100);
-    }
-
-    digitalWrite(LED_BUTTON_PIN, HIGH);
-    delay(1000);
-    digitalWrite(LED_BUTTON_PIN, LOW);
-  }*/
-
-  //Reads the value from the hall sensor through analog pin
-  int hall_value = analogRead(HALL_PIN);
-
-  //Testing the hall sensor value by printing it to the serial monitor
-  Serial.println(hall_value);
-
-  //if the hall sensor value is above 450, turn on the LED, otherwise turn it off
-  if (hall_value > 450)
-  {
-    digitalWrite(LED_HALL_PIN, HIGH);
-  }
-  else
-  {
-    digitalWrite(LED_HALL_PIN, LOW);
+    PWM_value -= 5;
+    if (PWM_value < 0) PWM_value = 0;
+    lastPressTime = currentTime;
   }
 
+  // Increase PWM
+  if (state2 == LOW && (currentTime - lastPressTime > debounceDelay))
+  {
+    PWM_value += 5;
+    if (PWM_value > 255) PWM_value = 255;
+    lastPressTime = currentTime;
+  }
 
+  analogWrite(PWM_PIN, PWM_value);
+
+  Serial.println(PWM_value);
 }
